@@ -1,0 +1,9 @@
+place order.
+
+1. Get cart items of user, calculate the total amount
+
+2.Create a record for order.
+
+3. REduce the stock(products quantity);
+
+4.

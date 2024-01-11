@@ -1,0 +1,10 @@
+import express from "express";
+import CartItemController from "./cartItem.controller.js";
+const cartItemRouter = express.Router();
+const cartItemController = new CartItemController();
+cartItemRouter.post('/add-to-cart', cartItemController.add);
+cartItemRouter.post('/increase-quantity/:id', cartItemController.increaseQuantity);
+cartItemRouter.post('/decrease-quantity/:id', cartItemController.decreaseQuantity);
+cartItemRouter.get('/get-cart-items', cartItemController.get);
+cartItemRouter.delete('/delete-cart-item/:id', cartItemController.deleteCartItem);
+export default cartItemRouter;
