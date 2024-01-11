@@ -26,7 +26,7 @@ const server = express();
 
 
 server.use(cors({
-    origin: 'http://localhost:8000',
+    origin: '*',
 }));
 
 // server.use((req, res, next) => {
@@ -46,7 +46,7 @@ server.use(cookieParser());
 server.use(bodyParser.json());
 server.use(express.urlencoded({ extended: true }));
 
-server.use("/api-docs", swagger.serve, swagger.setup(apiDocs));
+
 // for all requrests related to product, redirect to product routes.
 server.use(loggerMiddleware);
 server.use("/api/products", productRouter);
@@ -55,16 +55,20 @@ server.use('/api/carts', jwtAuth, cartItemRouter);
 server.use('/api/orders', jwtAuth, orderRouter);
 server.use("/api/likes", jwtAuth, likeRouter);
 
-server.get('/', (req, res) => {
-    res.send('Hello world');
-})
+// server.get('/', (req, res) => {
+//     res.send('Hello world');
+// })
+
+server.use("/", swagger.serve, swagger.setup(apiDocs));
 
 //Error handler middleware
 server.use((err, req, res, next) => {
 
     if (err instanceof ApplicationError) {
+        console.log(err.status, 'error in ---');
         res.status(err.code).send(err.message)
     }
+    // console.log(err);
     res.status(500).send('Something went wrong, please try later');
 
 })

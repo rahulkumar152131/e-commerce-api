@@ -19,7 +19,7 @@ export default class UserController {
         // console.log("object");
         try {
             const { name, email, password, type } = req.body;
-            // console.log(req.body);
+            console.log(req.body);
             const newUser = new UserModel(name, email, password, type, req.file.path);
             const response = await this.userRepository.signUp(newUser);
             if (response.success) {
@@ -28,11 +28,11 @@ export default class UserController {
                 return res.status(400).send(response.res);
             }
         } catch (error) {
-            // console.log("Error in signup controller ", error);
+            console.log("Error in signup controller ", error);
             if (error instanceof mongoose.Error.ValidationError) {
                 console.log(error);
                 const { userName, email, password } = error.errors;
-                res.status(500).json({
+                res.status(400).json({
                     status: false, msg: {
                         userName: userName?.message,
                         email: email?.message,

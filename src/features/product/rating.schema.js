@@ -19,6 +19,9 @@ const ratingSchema = mongoose.Schema({
         type: Number,
         min: [1, "rating should be between 1 to 5"],
         max: [5, "rating should be between 1 to 5"]
+    },
+    text: {
+        type: String
     }
 })
 

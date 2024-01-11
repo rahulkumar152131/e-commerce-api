@@ -2,9 +2,10 @@ import jwt from 'jsonwebtoken';
 
 const jwtAuth = (req, res, next) => {
     //1. Read the token
+    console.log(req.headers);
     const authHeader = req.headers['authorization'];
     // const token = req.cookies.userToken;
-    // console.log(token, 'cookies of jwt');
+    // console.log(authHeader, 'cookies of jwt');
     //2. if no token. return the error.
 
     if (!authHeader) {

@@ -38,10 +38,10 @@ class ProductRepository {
                 const savedProduct = await product.save();
 
                 //2. update category
-                await CategoryModel.updateMany(
-                    { _id: { $in: newProduct.category } },
-                    { $push: { products: new ObjectId(savedProduct._id) } }
-                )
+                // await CategoryModel.updateMany(
+                //     { _id: { $in: newProduct.category } },
+                //     { $push: { products: new ObjectId(savedProduct._id) } }
+                // )
                 return { success: true, res: savedProduct };
             } else {
                 return { success: false, res: "You are not authorized to add product" }
@@ -111,7 +111,7 @@ class ProductRepository {
         }
     }
 
-    async reteProduct(userID, productID, rating, userName) {
+    async reteProduct(userID, productID, rating, text) {
         try {
             //1. check if product exist
             const productToUpdate = await productModel.findById(productID);
@@ -123,6 +123,7 @@ class ProductRepository {
             // console.log(userRating);
             if (userRating) {
                 userRating.rating = rating;
+                userRating.text=text;
                 const newRating = await userRating.save();
                 // await productModel.updateOne(
                 //     { _id: new ObjectId(productID) },
@@ -132,7 +133,8 @@ class ProductRepository {
                 const newRating = new RatingModel({
                     productID: new ObjectId(productID),
                     userID: new ObjectId(userID),
-                    rating: rating
+                    rating: rating,
+                    text
                 })
                 await newRating.save();
                 //  console.log(newRating, 'new');

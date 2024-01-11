@@ -24,23 +24,24 @@ export default class ProductController {
             const userID = req.userID;
             // console.log(userID);
             // console.log(req.body);
+            console.log(category);
             const newProduct = new ProductModel(
                 name,
                 desc,
                 parseFloat(price),
                 req.file.filename,
-                category.split(','),
-                sizes.split(','),
+                category,
+                sizes,
                 parseFloat(stocks))
             // console.log(newProduct);
             const response = await this.productRepository.addProduct(newProduct, userID);
             console.log(response);
             // console.log(response.res);
-            // if (response.success) {
-            //     return res.status(201).send(response.res);
-            // } else {
-            //     return res.status(403).send(response.res);
-            // }
+            if (response.success) {
+                return res.status(201).send(response.res);
+            } else {
+                return res.status(403).send(response.res);
+            }
         } catch (err) {
             console.log("error in product repository", err);
             next(err)
@@ -51,6 +52,7 @@ export default class ProductController {
     getOneProduct = async (req, res, next) => {
 
         try {
+            console.log(req.params);
             const product = await this.productRepository.getOneProduct(req.params.id);
             // console.log(product);
             if (!product) {
@@ -68,11 +70,12 @@ export default class ProductController {
     rateProduct = async (req, res, next) => {
         try {
             const userID = req.userID;
-            const productID = req.query.productID;
-            const rating = req.query.rating;
-            const userName = req.userName;
+            console.log(req.body);
+            const { productID, star,ratingText } = req.body;
+            // const rating = req.body.star;
+            // const userName = req.userName;
 
-            const product = await this.productRepository.reteProduct(userID, productID, rating, userName);
+            const product = await this.productRepository.reteProduct(userID, productID, star, ratingText);
             return res.status(200).send(product);
         } catch (err) {
             next(err);

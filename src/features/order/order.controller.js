@@ -7,7 +7,7 @@ export default class OrderController {
         this.orderRepository = new OrderRepository();
         this.cartItemRepository = new CartItemRepository();
     }
-    placeOrder = async (req, res) => {
+    placeOrder = async (req, res, next) => {
         try {
             const userID = req.userID;
             // console.log("userID");
@@ -17,8 +17,8 @@ export default class OrderController {
             // console.log(order);
             return res.status(200).send(order);
         } catch (err) {
-            console.log("Error in placing order", err);
-            res.status(500).send("Something went wrong");
+            // console.log("Error in placing order", err);
+            next(err)
         }
     }
     getAllorder = async (req, res) => {

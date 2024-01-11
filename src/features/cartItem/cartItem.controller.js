@@ -13,6 +13,9 @@ export default class CartItemController {
             const userID = req.userID;
             const response = await this.cartItemRepository.add(productID, userID, parseInt(quantity));
             // console.log(cartItem);
+            if(!response.success){
+                return res.status(400).send(response);
+            }
             return res.status(201).send(response);
 
         } catch (err) {

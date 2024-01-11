@@ -46,9 +46,12 @@ export default class OrderRepository {
         const session = await mongoose.startSession();
 
         try {
-
-            const cartItems = await CartItemModel.find({ userID }).populate('productID').session(session);
+            
             session.startTransaction();
+            const cartItems = await CartItemModel.find({ userID }).populate('productID').session(session);
+            if (cartItems.length <= 0) {
+                throw new ApplicationError("Cart is Empty", 400);
+            }
             const newOrder = new OrderModel({
                 userID,
                 items: cartItems,
@@ -71,8 +74,8 @@ export default class OrderRepository {
             return newOrder
         } catch (err) {
             await session.abortTransaction();
-            console.error("Error in placing order", err);
-            throw new ApplicationError("Something went wrong with order collection");
+            // console.error("Error in placing order", err);
+            throw new ApplicationError(err, 400);
         } finally {
             session.endSession();
         }

@@ -43,10 +43,12 @@ const productSchema = new mongoose.Schema({
         }
     ],
     category: [
+
         {
-            type: mongoose.Schema.ObjectId,
-            ref: 'categories'
+            type: String,
+            required: true
         }
+
     ]
 })
 const productModel = mongoose.model('products', productSchema)

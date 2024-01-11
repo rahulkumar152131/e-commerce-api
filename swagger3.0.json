@@ -12,10 +12,12 @@
     ],
     "components": {
         "securitySchemes": {
-            "JWT": {
+            "bearerAuth": {
                 "in": "header",
                 "name": "Authorization",
-                "type": "apiKey"
+                "type": "http",
+                "scheme": "bearer",
+                "bearerFormat": "JWT"
             }
         }
     },
@@ -36,7 +38,8 @@
                                         "type": "string"
                                     },
                                     "password": {
-                                        "type": "string"
+                                        "type": "string",
+                                        "format": "password"
                                     }
                                 }
                             }
@@ -61,10 +64,17 @@
                 "summary": "Register",
                 "requestBody": {
                     "content": {
-                        "application/json": {
+                        "multipart/form-data": {
                             "schema": {
                                 "type": "object",
                                 "properties": {
+                                    "type": {
+                                        "type": "string",
+                                        "enum": [
+                                            "seller",
+                                            "customer"
+                                        ]
+                                    },
                                     "name": {
                                         "type": "string"
                                     },
@@ -72,7 +82,11 @@
                                         "type": "string"
                                     },
                                     "password": {
-                                        "type": "string"
+                                        "type": "string",
+                                        "format": "password"
+                                    },
+                                    "profileImage": {
+                                        "type": "file"
                                     }
                                 }
                             }
@@ -84,24 +98,127 @@
                         "description": "OK"
                     },
                     "400": {
-                        "description": "Incorrect Credentials"
+                        "description": "You are already Registered"
                     }
                 }
             }
         },
-        "/url/:id": {
+        "/api/products/add-product": {
             "post": {
                 "tags": [
-                    "Url"
+                    "Products"
                 ],
-                "summary": "Short Url",
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "summary": "Add Product",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "desc": {
+                                        "type": "string"
+                                    },
+                                    "price": {
+                                        "type": "number"
+                                    },
+                                    "category": {
+                                        "type": "array"
+                                    },
+                                    "sizes": {
+                                        "type": "array"
+                                    },
+                                    "stocks": {
+                                        "type": "number"
+                                    },
+                                    "profileImage": {
+                                        "type": "file"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Try with suitable form Data"
+                    }
+                }
+            }
+        },
+        "/api/products/filter": {
+            "post": {
+                "tags": [
+                    "Products"
+                ],
+                "summary": "Filter Product",
                 "requestBody": {
                     "content": {
                         "application/json": {
                             "schema": {
                                 "type": "object",
                                 "properties": {
-                                    "url": {
+                                    "minPrice": {
+                                        "type": "number"
+                                    },
+                                    "maxPrice": {
+                                        "type": "number"
+                                    },
+                                    "category": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Try with suitable form Data"
+                    }
+                }
+            }
+        },
+        "/api/products/rete-product": {
+            "post": {
+                "tags": [
+                    "Products"
+                ],
+                "summary": "Rate a Product",
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "productID": {
+                                        "type": "string"
+                                    },
+                                    "rating": {
+                                        "type": "number"
+                                    },
+                                    "text": {
                                         "type": "string"
                                     }
                                 }
@@ -114,23 +231,97 @@
                         "description": "OK"
                     },
                     "400": {
-                        "description": "Incorrect Credentials"
+                        "description": "Rating unsuccessful"
                     }
                 }
             }
         },
-        "/url/:shortId": {
+        "/api/products/get-products/": {
             "get": {
                 "tags": [
-                    "Url"
+                    "Products"
                 ],
-                "summary": "Get Short Url",
+                "summary": "Get Products",
+                "description": "Get all Products",
                 "responses": {
                     "200": {
                         "description": "OK"
                     },
                     "401": {
                         "description": "Unauthorized"
+                    }
+                }
+            }
+        },
+        "/api/products/get-one/{id}": {
+            "get": {
+                "tags": [
+                    "Products"
+                ],
+                "summary": "Get one Product",
+                "description": "Get one Product",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The id of the product which you want fetch"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Product Not found"
+                    }
+                }
+            }
+        },
+        "/api/carts/add-to-cart/?productID={productID}&quantity={quantity}": {
+            "post": {
+                "tags": [
+                    "Carts"
+                ],
+                "summary": "Add product to the Cart",
+                "description": "Add product to the Cart",
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "productID",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The id of the product which you want to add to cart"
+                    },
+                    {
+                        "name": "quantity",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "number"
+                        },
+                        "description": "The quantity of the product"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "400": {
+                        "description": "Already in Cart"
                     }
                 }
             }
@@ -144,7 +335,198 @@
                 "description": "Get all cart items",
                 "security": [
                     {
-                        "JWT": {}
+                        "bearerAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                }
+            }
+        },
+        "/api/carts/increase-quantity/{id}": {
+            "post": {
+                "tags": [
+                    "Carts"
+                ],
+                "summary": "Increase cart item quantity",
+                "description": "Increate Cart item Quantity to 1",
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The id of the cartitem which you want increase quantity"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                }
+            }
+        },
+        "/api/carts/decrease-quantity/{id}": {
+            "post": {
+                "tags": [
+                    "Carts"
+                ],
+                "summary": "Decrease cart item quantity",
+                "description": "Decreate Cart item Quantity to 1",
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The id of the cartitem which you want decrease quantity"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                }
+            }
+        },
+        "/api/carts/delete-cart-item/{id}": {
+            "delete": {
+                "tags": [
+                    "Carts"
+                ],
+                "summary": "Delete one cart item",
+                "description": "Delete Cart item Quantity to 1",
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The id of the cartitem which you want Delete"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                }
+            }
+        },
+        "/api/likes/?type={type}&id={id}": {
+            "post": {
+                "tags": [
+                    "Likes"
+                ],
+                "summary": "Like a product and a rating",
+                "description": "Like a product and a rating and if you send this request again then first time it likes and second times it remove like",
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The id of the product and rating which you want to like"
+                    },
+                    {
+                        "name": "type",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "products",
+                                "ratings"
+                            ]
+                        },
+                        "description": "The type likes product and rating which you want to like"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                }
+            }
+        },
+        "/api/orders/place-order": {
+            "post": {
+                "tags": [
+                    "Order"
+                ],
+                "summary": "Place order",
+                "description": "If you send this request it will order all item which will be in cart and decrease the stock from product and clear all cart item of specific usser to send this request use replica set and if any operation fails then it revert back all operation which all order operation for that request",
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "400": {
+                        "description": "Cart is Empty"
+                    }
+                }
+            }
+        },
+        "/api/orders/get-all-order": {
+            "get": {
+                "tags": [
+                    "Order"
+                ],
+                "summary": "Get all orderes",
+                "security": [
+                    {
+                        "bearerAuth": []
                     }
                 ],
                 "responses": {
